@@ -6,7 +6,8 @@ function r_grad = getElemGradientResTerm(msh,mat,gauss,local_dissipation,d,e)
     c0 = local_dissipation.c0;
     
     % 2d quad element residual vector routine
-    r_grad   = zeros(1,4);
+    ke_grad   = zeros(4,4);
+    r_grad   = zeros(4,1);
     one  = ones(1,4);
     psiJ = [-1, +1, +1, -1]; etaJ = [-1, -1, +1, +1];
     
@@ -39,9 +40,13 @@ function r_grad = getElemGradientResTerm(msh,mat,gauss,local_dissipation,d,e)
 
         % assemble B matrix
         BJ = NJdxy;
+        
+        %get grad_d at quadrature point
+        grad_d_qp = BJ * de'; %u at quadrature point
 
         % assemble ke
-        r_grad = r_grad + (Gc*l/c0) * (BJ'*BJ) * de / jcob;
+        r_grad = r_grad + (2*Gc*l/c0) * (BJ' * grad_d_qp) / jcob;
+        ke_grad = ke_grad + (2*Gc*l/c0) * (BJ'*BJ) / jcob;
         
       end
     end

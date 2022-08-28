@@ -40,7 +40,7 @@ function ke_grad = getElemGradientJacTerm(msh, mat, gauss, local_dissipation, e)
         BJ = NJdxy;
 
         % assemble ke
-        ke = ke + (2*Gc*l/c0) * (BJ'*BJ) / jcob;
+        ke_grad = ke_grad + (2*Gc*l/c0) * (BJ'*BJ) / jcob;
 
       end
     end

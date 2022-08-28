@@ -1,4 +1,4 @@
-function ke_driv = getElemDrivingForceJacTerm(msh, gauss, degradation, d, e)
+function ke_driv = getElemDrivingForceJacTerm(msh, gauss, degradation, active_energy ,d, e)
 
     % 2d quad element mass matrix routine
     ke_driv  = zeros(4,4);
@@ -17,6 +17,9 @@ function ke_driv = getElemDrivingForceJacTerm(msh, gauss, degradation, d, e)
       for j=1:2
 
         eta = gauss(i); psi = gauss(j);
+        
+        %convert qp from 1:2 x 1:2 to 1:4
+        qp_ind = 2*(i-1) + j;
 
         % compute derivatives of shape functions in reference coordinates
         NJpsi = 0.25*psiJ.*(one + eta*etaJ);
@@ -32,7 +35,7 @@ function ke_driv = getElemDrivingForceJacTerm(msh, gauss, degradation, d, e)
         d_qp = NJ * de'; %u at quadrature point
 
         % apply quadrature (with unit weights)
-        ke_driv = ke_driv + degradation.second_derivative(d_qp) * active_energy * (NJ * NJ') * jcob;
+        ke_driv = ke_driv + degradation.second_derivative(d_qp) * active_energy(qp_ind) * (NJ' * NJ) * jcob;
 
       end
     end

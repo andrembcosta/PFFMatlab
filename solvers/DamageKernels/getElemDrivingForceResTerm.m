@@ -1,4 +1,4 @@
-function r_driv = getElemDrivingForceResTerm(msh,gauss,degradation,active_energy,e,d)
+function r_driv = getElemDrivingForceResTerm(msh,gauss,degradation,active_energy,d,e)
 
     % get coordinates of element nodes
     xe = zeros(1,4); ye = zeros(1,4); de = zeros(1,4); 
@@ -8,7 +8,7 @@ function r_driv = getElemDrivingForceResTerm(msh,gauss,degradation,active_energy
     end
     
     % 2d quad element residual vector routine
-    r_driv = zeros(1,4);
+    r_driv = zeros(4,1);
     one  = ones(1,4);
     psiJ = [-1, +1, +1, -1]; etaJ = [-1, -1, +1, +1];
     
@@ -17,6 +17,9 @@ function r_driv = getElemDrivingForceResTerm(msh,gauss,degradation,active_energy
       for j=1:2
 
         eta = gauss(i); psi = gauss(j);
+        
+        %convert qp from 1:2 x 1:2 to 1:4
+        qp_ind = 2*(i-1) + j;
 
         % compute derivatives of shape functions in reference coordinates
         NJpsi = 0.25*psiJ.*(one + eta*etaJ);
@@ -32,7 +35,7 @@ function r_driv = getElemDrivingForceResTerm(msh,gauss,degradation,active_energy
         d_qp = NJ * de'; %u at quadrature point
 
         % apply quadrature (with unit weights)
-        r_driv = r_driv + degradation.first_derivative(d_qp) * active_energy * NJ'*jcob;
+        r_driv = r_driv + degradation.first_derivative(d_qp) * active_energy(qp_ind) * NJ' * jcob;
 
       end
     end

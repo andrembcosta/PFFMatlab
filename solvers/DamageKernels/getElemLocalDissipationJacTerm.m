@@ -37,7 +37,7 @@ function ke_d = getElemLocalDissipationJacTerm(msh, mat, gauss, local_dissipatio
         d_qp = NJ * de'; %u at quadrature point
 
         % assemble ke
-        ke_d = ke_d + (Gc/(c0*l)) * local_dissipation.second_derivative(d_qp) * (NJ * NJ') * jcob;
+        ke_d = ke_d + (Gc/(c0*l)) * local_dissipation.second_derivative(d_qp) * (NJ' * NJ) * jcob;
         %ke = ke + (C + 2*H(e,2*(i-1)+j)) * (NJ'*NJ) * jcob;
 
       end
