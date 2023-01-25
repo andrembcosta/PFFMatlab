@@ -1,24 +1,18 @@
-function r_grad = getElemGradientResTerm(msh,mat,local_dissipation,d,e)
-
-    nnod = msh.numnod;
-    ndof = nnod;
+function [r, J] = getElemStressTerm(msh,gauss,stress,Kmat,e)
     
-    %coeficients
-    Gc = mat.Gc;
-    l = mat.l;
-    c0 = local_dissipation.c0;
-    
-    %get residual
-    r_grad = 2 * (Gc*l/c0) * (grad_Na, grad_d);
+    % 2d quad element residual vector routine
+    J   = zeros(4,4);
+    r   = zeros(4,1);
+    one  = ones(1,4);
+    psiJ = [-1, +1, +1, -1]; etaJ = [-1, -1, +1, +1];
     
     % get coordinates of element nodes
-    xe = zeros(1,4); ye = zeros(1,4); de = zeros(1,4); 
+    xe = zeros(1,4); ye = zeros(1,4); 
     for j=1:4
       je = msh.ien(e,j+1); xe(j) = msh.xnod(je,2); ye(j) = msh.xnod(je,3);
-      de(j) = d(je);
     end
     
-    % compute element residual
+    % compute element stiffness
     for i=1:2
       for j=1:2
 
@@ -39,19 +33,17 @@ function r_grad = getElemGradientResTerm(msh,mat,local_dissipation,d,e)
         NJdxy = Jinv*NJdpsieta;
 
         % assemble B matrix
-        BJ = NJdxy;
+        BJ = zeros(3,8);
+        BJ(1,1:2:7) = NJdxy(1,1:4);  BJ(2,2:2:8) = NJdxy(2,1:4);
+        BJ(3,1:2:7) = NJdxy(2,1:4);  BJ(3,2:2:8) = NJdxy(1,1:4);
 
-        % assemble ke
-        ke = ke + (Gc*l/c0) * (BJ'*BJ) * de / jcob;
-        
-        %get d at quadrature point
-        d_qp = NJ * de'; %u at quadrature point
-
-        % apply quadrature (with unit weights)
-        r_driv = r_driv + degradation.first_derivative(d_qp) * active_energy * NJ'*jcob;
+        % residual 
+        r = r + BJ' * stress(e,i,j);
+        J = r + BJ' * Kmat(e,i,j) * BJ / jcob;
 
       end
     end
+
 
 end
               
