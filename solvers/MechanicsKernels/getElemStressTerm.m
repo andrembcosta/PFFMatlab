@@ -1,4 +1,4 @@
-function [r, J] = getElemStressTerm(msh,gauss,stress,Kmat,e)
+function [r, J] = getElemStressTerm(msh,gauss,e,constitutiveModel,u)
     
     % 2d quad element residual vector routine
     J   = zeros(4,4);
@@ -38,8 +38,8 @@ function [r, J] = getElemStressTerm(msh,gauss,stress,Kmat,e)
         BJ(3,1:2:7) = NJdxy(2,1:4);  BJ(3,2:2:8) = NJdxy(1,1:4);
 
         % residual 
-        r = r + BJ' * stress(e,i,j);
-        J = r + BJ' * Kmat(e,i,j) * BJ / jcob;
+        r = r + BJ' * constitutiveModel.getStress(e,i,j,u);
+        J = r + BJ' * constitutiveModel.getStiffness(e,i,j,u) * BJ / jcob;
 
       end
     end

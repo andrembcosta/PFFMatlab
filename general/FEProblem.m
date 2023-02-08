@@ -21,7 +21,7 @@ classdef FEProblem < handle
             obj.mesh = setupMesh(inputStruct);
             obj.physics = inputStruct.physics;
             obj.materials = inputStruct.materials;
-            obj.solvers = getSolversFromPhysics();
+            obj.solvers = getSolversFromPhysics(obj, inputStruct);
             obj.boundary_conditions = setupBCs(inputStruct);
             obj.initial_conditions = setupICs(inputStruct);
             obj.output_path = inputStruct.output_path;
@@ -36,18 +36,24 @@ classdef FEProblem < handle
             end
         end
         
-        function solvers = getSolversFromPhysics(obj)
+        function solvers = getSolversFromPhysics(obj, inputStruct)
             solvers=[];
             for ph = obj.physics
                 if ph=="Phase-field"
                     pfSolver = PhaseFieldSolver();
                     damageSolver = stdDamageSolver();
                     solvers = [solvers, pfSolver, damageSolver];
+                    %catch pf options
+                    pfSolver.degradation_function = inputStruct.pf_degradation_function; 
+                    pfSolver.strain_decomposition = inputStruct.pf_strain_decomposition;
+                    %catch damage options
+                    damageSolver.local_dissipation=inputStruct.damage_local_dissipation;
+                    damageSolver.irreversibility=inputStruct.damage_irreversibility;
                 end
             end
             for ph = obj.physics
                 if ph=="Mechanics"
-                    mechSolver = stdMechanicsSolver();
+                    mechSolver = mechanicsSolver();
                 end
             end
             for ph = obj.physics
