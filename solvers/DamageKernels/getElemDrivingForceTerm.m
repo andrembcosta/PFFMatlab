@@ -36,6 +36,9 @@ function [r_driv, ke_driv] = getElemDrivingForceTerm(msh, gauss, degradation, ac
         d_qp = NJ * de'; %u at quadrature point
 
         % apply quadrature (with unit weights)
+        %residual term
+        r_driv = r_driv + degradation.first_derivative(d_qp) * active_energy(qp_ind) * NJ' * jcob;
+        %jacobian term
         ke_driv = ke_driv + degradation.second_derivative(d_qp) * active_energy(qp_ind) * (NJ' * NJ) * jcob;
 
       end

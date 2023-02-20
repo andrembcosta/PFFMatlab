@@ -40,16 +40,10 @@ classdef damageSolver < handle
             for e=1:obj.mesh.numele
                 
               %The residual is separated into many contributions, that are called separetely
-              r_d = getElemLocalDissipationResTerm(obj.mesh,obj.material,gauss,obj.local_dissipation,d,e);
-              r_grad = getElemGradientResTerm(obj.mesh,obj.material,gauss,obj.local_dissipation,d,e);
-              r_driv = getElemDrivingForceResTerm(obj.mesh,gauss,obj.degradation_function,obj.active_energy,d,e);
-              
-              %The jacobian is separated into many contributions, that will 
-              %be called separately
-              j_d = getElemLocalDissipationJacTerm(obj.mesh, obj.material, gauss, obj.local_dissipation, d, e);
-              j_grad = getElemGradientJacTerm(obj.mesh, obj.material, gauss, obj.local_dissipation, e);
-              j_driv = getElemDrivingForceJacTerm(obj.mesh, gauss, obj.degradation_function, obj.active_energy, d, e);
-    
+              [r_d, j_d] = getElemLocalDissipationTerm(obj.mesh,obj.material,gauss,obj.local_dissipation,d,e);
+              [r_grad, j_grad] = getElemGradientTerm(obj.mesh,obj.material,gauss,obj.local_dissipation,d,e);
+              [r_driv, j_driv] = getElemDrivingForceTerm(obj.mesh,gauss,obj.degradation_function,obj.active_energy,d,e);
+                  
               % assemble in J and R
               for i=1:4
                 rbk = obj.mesh.ien(e,i+1);
